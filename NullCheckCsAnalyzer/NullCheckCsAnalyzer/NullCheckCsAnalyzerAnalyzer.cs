@@ -30,21 +30,16 @@ namespace NullCheckCsAnalyzer {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            //throw new Exception("kek");
-
             // TODO: Consider registering other actions that act on syntax instead of or in addition to symbols
             // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Analyzer%20Actions%20Semantics.md for more information
-            //context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
-            //context.RegisterSyntaxTreeAction(AnalyzeSyntaxTree);
             context.RegisterSyntaxNodeAction(AnalyzeIfStatement, SyntaxKind.IfStatement);
         }
 
         private static void AnalyzeIfStatement(SyntaxNodeAnalysisContext context) {
             var ifStatement = context.Node as IfStatementSyntax;
 
-            // TODO: refactor this
             if (ifStatement.Condition is BinaryExpressionSyntax binaryExpression) {
-                if (binaryExpression.Kind() == SyntaxKind.EqualsExpression) {
+                if (binaryExpression.Kind() == SyntaxKind.EqualsExpression || binaryExpression.Kind() == SyntaxKind.NotEqualsExpression) {
                     IdentifierNameSyntax identifierName = null;
                     if (binaryExpression.Left.Kind() == SyntaxKind.NullLiteralExpression) {
                         identifierName = binaryExpression.Right as IdentifierNameSyntax;
@@ -59,22 +54,10 @@ namespace NullCheckCsAnalyzer {
                         return;
                     }
 
-                    var diag = Diagnostic.Create(Rule, binaryExpression.GetLocation(), binaryExpression.Left);
-                    context.ReportDiagnostic(diag);
+                    var diagnostic = Diagnostic.Create(Rule, binaryExpression.GetLocation(), binaryExpression.Left);
+                    context.ReportDiagnostic(diagnostic);
                 }
             }
         }
-
-        //private static void AnalyzeSyntaxTree(SyntaxTreeAnalysisContext context) {
-        //    var root = context.Tree.GetRoot();
-        //    Debugger.Launch();
-
-        //    foreach (var ifStatement in root.DescendantNodes().OfType<IfStatementSyntax>()) {
-        //        foreach (var child in ifStatement.Condition.ChildNodes()) {
-        //            var diagnostic = Diagnostic.Create(Rule, child.GetLocation(), "tree");
-        //            context.ReportDiagnostic(diagnostic);
-        //        }
-        //    }
-        //}
     }
 }

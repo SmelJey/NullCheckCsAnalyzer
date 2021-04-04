@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
 
@@ -31,19 +32,30 @@ namespace NullCheckCsAnalyzer {
 
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var ifStatement = root.FindNode(diagnosticSpan).Parent;
+            var ifStatement = root.FindNode(diagnosticSpan).Parent as IfStatementSyntax;
+            if (ifStatement == null) {
+                return;
+            }
 
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: CodeFixResources.CodeFixTitle,
-                    createChangedDocument: c => MakeUppercaseAsync(context.Document, ifStatement as IfStatementSyntax, root, c),
+                    createChangedDocument: c => RemoveNullCheck(context.Document, ifStatement, c),
                     equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                 diagnostic);
         }
 
-        private async Task<Document> MakeUppercaseAsync(Document document, IfStatementSyntax ifStatement, SyntaxNode root, CancellationToken cancellationToken) {
-            var newRoot = root.RemoveNode(ifStatement, SyntaxRemoveOptions.KeepNoTrivia);
-            return document.WithSyntaxRoot(newRoot);
+        private async Task<Document> RemoveNullCheck(Document document, IfStatementSyntax ifStatement, CancellationToken cancellationToken) {
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
+            if (ifStatement.Condition.Kind() == SyntaxKind.EqualsExpression) {
+                var newRoot = root.RemoveNode(ifStatement, SyntaxRemoveOptions.KeepNoTrivia);
+                return document.WithSyntaxRoot(newRoot);
+            } else {
+                var newRoot = root.ReplaceNode(ifStatement,
+                    ifStatement.Statement.ChildNodes().Select(it => it.WithAdditionalAnnotations(Formatter.Annotation)));
+
+                return document.WithSyntaxRoot(newRoot);
+            }
         }
     }
 }
