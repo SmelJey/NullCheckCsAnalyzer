@@ -9,48 +9,114 @@ using VerifyCS = NullCheckCsAnalyzer.Test.CSharpCodeFixVerifier<
 namespace NullCheckCsAnalyzer.Test {
     [TestClass]
     public class NullCheckCsAnalyzerUnitTest {
-        //No diagnostics expected to show up
         [TestMethod]
-        public async Task TestMethod1() {
-            var test = @"";
+        public async Task NullableDisabledTest() {
+            var test = @"
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            if (a == null) {
+                return false;
+            }
+            return true;
+        }
+    }
+}";
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
-        //Diagnostic and CodeFix both triggered and checked for
         [TestMethod]
-        public async Task TestMethod2() {
+        public async Task NullableTypeTest() {
             var test = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
+#nullable enable
 
-    namespace ConsoleApplication1
-    {
-        class {|#0:TypeName|}
-        {   
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string? a) {
+            if (a == null) {
+                return false;
+            }
+            return true;
         }
-    }";
+    }
+}";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task IfNullTest() {
+            var test = @"
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            if ({|#0:a == null|}) {
+                return false;
+            }
+            return true;
+        }
+    }
+}";
 
             var fixtest = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
+#nullable enable
 
-    namespace ConsoleApplication1
-    {
-        class TYPENAME
-        {   
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            return true;
         }
-    }";
+    }
+}";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("TypeName");
+            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task IfNotNullTest() {
+            var test = @"
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            if ({|#0:a != null|}) {
+                return false;
+            }
+            return true;
+        }
+    }
+}";
+
+            var fixtest = @"
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            return false;
+            return true;
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
     }
