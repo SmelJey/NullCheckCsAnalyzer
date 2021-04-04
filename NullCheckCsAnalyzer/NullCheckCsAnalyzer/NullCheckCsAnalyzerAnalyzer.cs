@@ -32,32 +32,31 @@ namespace NullCheckCsAnalyzer {
 
             // TODO: Consider registering other actions that act on syntax instead of or in addition to symbols
             // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Analyzer%20Actions%20Semantics.md for more information
-            context.RegisterSyntaxNodeAction(AnalyzeIfStatement, SyntaxKind.IfStatement);
+            //context.RegisterSyntaxNodeAction(AnalyzeIfStatement, SyntaxKind.IfStatement);
+            //context.RegisterOperationAction(AnalyzeEqualsOperation, OperationKind.Binary);
+            context.RegisterSyntaxNodeAction(AnalyzeEqualsExpression, SyntaxKind.EqualsExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeEqualsExpression, SyntaxKind.NotEqualsExpression);
         }
 
-        private static void AnalyzeIfStatement(SyntaxNodeAnalysisContext context) {
-            var ifStatement = context.Node as IfStatementSyntax;
+        private static void AnalyzeEqualsExpression(SyntaxNodeAnalysisContext context) {
+            var binaryExpression =  context.Node as BinaryExpressionSyntax;
+            IdentifierNameSyntax identifierName = null;
 
-            if (ifStatement.Condition is BinaryExpressionSyntax binaryExpression) {
-                if (binaryExpression.Kind() == SyntaxKind.EqualsExpression || binaryExpression.Kind() == SyntaxKind.NotEqualsExpression) {
-                    IdentifierNameSyntax identifierName = null;
-                    if (binaryExpression.Left.Kind() == SyntaxKind.NullLiteralExpression) {
-                        identifierName = binaryExpression.Right as IdentifierNameSyntax;
-                    }
-
-                    if (binaryExpression.Right.Kind() == SyntaxKind.NullLiteralExpression) {
-                        identifierName = binaryExpression.Left as IdentifierNameSyntax;
-                    }
-
-                    if (identifierName == null
-                        || context.SemanticModel.GetTypeInfo(identifierName).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
-                        return;
-                    }
-
-                    var diagnostic = Diagnostic.Create(Rule, binaryExpression.GetLocation(), binaryExpression.Left);
-                    context.ReportDiagnostic(diagnostic);
-                }
+            if (binaryExpression.Left.Kind() == SyntaxKind.NullLiteralExpression) {
+                identifierName = binaryExpression.Right as IdentifierNameSyntax;
             }
+
+            if (binaryExpression.Right.Kind() == SyntaxKind.NullLiteralExpression) {
+                identifierName = binaryExpression.Left as IdentifierNameSyntax;
+            }
+
+            if (identifierName == null
+                || context.SemanticModel.GetTypeInfo(identifierName).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
+                return;
+            }
+
+            var diagnostic = Diagnostic.Create(Rule, binaryExpression.GetLocation(), binaryExpression.Left);
+            context.ReportDiagnostic(diagnostic);
         }
     }
 }

@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Rename;
+using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
 
 namespace NullCheckCsAnalyzer {
@@ -32,20 +33,29 @@ namespace NullCheckCsAnalyzer {
 
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var ifStatement = root.FindNode(diagnosticSpan).Parent as IfStatementSyntax;
+            var expression = root.FindNode(diagnosticSpan) as BinaryExpressionSyntax;
+
+            var ifStatement = expression.Parent as IfStatementSyntax;
             if (ifStatement == null) {
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: CodeFixResources.CodeFixTitle,
+                        createChangedDocument: c => RemoveBoolNullCheck(context.Document, expression, c),
+                        equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                    diagnostic);
                 return;
             }
 
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: CodeFixResources.CodeFixTitle,
-                    createChangedDocument: c => RemoveNullCheck(context.Document, ifStatement, c),
+                    createChangedDocument: c => RemoveIfNullCheck(context.Document, ifStatement, c),
                     equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                 diagnostic);
         }
 
-        private async Task<Document> RemoveNullCheck(Document document, IfStatementSyntax ifStatement, CancellationToken cancellationToken) {
+        private async Task<Document> RemoveIfNullCheck(Document document, IfStatementSyntax ifStatement,
+                CancellationToken cancellationToken) {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
             if (ifStatement.Condition.Kind() == SyntaxKind.EqualsExpression) {
                 var newRoot = root.RemoveNode(ifStatement, SyntaxRemoveOptions.KeepNoTrivia);
@@ -56,6 +66,26 @@ namespace NullCheckCsAnalyzer {
 
                 return document.WithSyntaxRoot(newRoot);
             }
+        }
+
+        private async Task<Document> RemoveBoolNullCheck(Document document, BinaryExpressionSyntax binaryExpression,
+                CancellationToken cancellationToken) {
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
+            //var currentExpression = binaryExpression as ExpressionSyntax;
+            //while (currentExpression.Parent is ExpressionSyntax expression) {
+            //    currentExpression = expression;
+            //}
+
+            var evaluatedType = (binaryExpression.Kind() == SyntaxKind.EqualsExpression
+                ? SyntaxKind.FalseLiteralExpression
+                : SyntaxKind.TrueLiteralExpression);
+
+            //var simplifiedExpression =
+            //    currentExpression.ReplaceNode(binaryExpression, SyntaxFactory.LiteralExpression(evaluatedType));
+
+            // TODO: try to simplify boolean expressions of type (true && ...) or (false && ...)
+            var newRoot = root.ReplaceNode(binaryExpression, SyntaxFactory.LiteralExpression(evaluatedType));
+            return document.WithSyntaxRoot(newRoot);
         }
     }
 }
