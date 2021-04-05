@@ -34,6 +34,7 @@ namespace NullCheckCsAnalyzer {
             context.RegisterSyntaxNodeAction(AnalyzeEqualsExpression, SyntaxKind.NotEqualsExpression);
             context.RegisterSyntaxNodeAction(AnalyzeConditionalAccessExpression, SyntaxKind.ConditionalAccessExpression);
             context.RegisterSyntaxNodeAction(AnalyzeIsNull, SyntaxKind.IsPatternExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeCoalesceOperator, SyntaxKind.CoalesceExpression);
         }
 
         private static void AnalyzeEqualsExpression(SyntaxNodeAnalysisContext context) {
@@ -76,6 +77,17 @@ namespace NullCheckCsAnalyzer {
             }
 
             var diagnostic = Diagnostic.Create(Rule, isNullExpression.GetLocation(), isNullExpression.Expression);
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private static void AnalyzeCoalesceOperator(SyntaxNodeAnalysisContext context) {
+            var coalesceOperator = context.Node as BinaryExpressionSyntax;
+            if (context.SemanticModel.GetTypeInfo(coalesceOperator.Left).Nullability.Annotation !=
+                    NullableAnnotation.NotAnnotated) {
+                return;
+            }
+
+            var diagnostic = Diagnostic.Create(Rule, coalesceOperator.GetLocation(), coalesceOperator.Left);
             context.ReportDiagnostic(diagnostic);
         }
     }

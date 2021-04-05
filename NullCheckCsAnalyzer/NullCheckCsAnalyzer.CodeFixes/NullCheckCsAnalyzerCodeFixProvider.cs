@@ -35,13 +35,27 @@ namespace NullCheckCsAnalyzer {
             var diagnosticSpan = diagnostic.Location.SourceSpan;
             var expression = root.FindNode(diagnosticSpan);
 
+            switch (expression.Kind()) {
+                case SyntaxKind.ConditionalAccessExpression:
+                    //context.RegisterCodeFix(
+                    //    CodeAction.Create(
+                    //        title: CodeFixResources.CodeFixTitle,
+                    //        createChangedDocument: c => RemoveConditionalMemberAccess(context.Document, expression as ConditionalAccessExpressionSyntax, c),
+                    //        equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                    //    diagnostic);
+                    return;
+                case SyntaxKind.CoalesceExpression:
+                    context.RegisterCodeFix(
+                        CodeAction.Create(
+                            title: CodeFixResources.CodeFixTitle,
+                            createChangedDocument: c => RemoveCoalesceExpression(context.Document, expression as BinaryExpressionSyntax, c),
+                            equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                        diagnostic);
+                    return;
+            }
+
             if (expression.Kind() == SyntaxKind.ConditionalAccessExpression) {
-                //context.RegisterCodeFix(
-                //    CodeAction.Create(
-                //        title: CodeFixResources.CodeFixTitle,
-                //        createChangedDocument: c => RemoveConditionalMemberAccess(context.Document, expression as ConditionalAccessExpressionSyntax, c),
-                //        equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
-                //    diagnostic);
+                
                 return;
             }
 
@@ -112,8 +126,7 @@ namespace NullCheckCsAnalyzer {
             return document.WithSyntaxRoot(newRoot);
         }
 
-        private async Task<Document> RemoveConditionalNullCheck(Document document,
-                ConditionalExpressionSyntax conditionalExpression,
+        private async Task<Document> RemoveConditionalNullCheck(Document document, ConditionalExpressionSyntax conditionalExpression,
                 CancellationToken cancellationToken) {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
 
@@ -128,6 +141,15 @@ namespace NullCheckCsAnalyzer {
 
             return document.WithSyntaxRoot(newRoot);
         }
+
+        private async Task<Document> RemoveCoalesceExpression(Document document,
+                BinaryExpressionSyntax coalesceExpression, CancellationToken cancellationToken) {
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
+
+            var newRoot = root.ReplaceNode(coalesceExpression, coalesceExpression.Left.WithoutTrivia());
+            return document.WithSyntaxRoot(newRoot);
+        }
+
 
         // TODO: make codefix for this
         //private async Task<Document> RemoveConditionalMemberAccess(Document document,
