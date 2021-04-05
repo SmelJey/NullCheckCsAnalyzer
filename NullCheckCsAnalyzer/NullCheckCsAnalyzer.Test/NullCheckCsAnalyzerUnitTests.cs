@@ -457,5 +457,83 @@ namespace ConsoleApplication1
             var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
+
+        [TestMethod]
+        public async Task EqualsNullCheck1() {
+            var test = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            if ({|#0:a.Equals(null)|}) {
+                return false;
+            }
+            return true;
+        }
+    }
+}";
+
+            var fixtest = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            return true;
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+
+        [TestMethod]
+        public async Task EqualsNullCheck2() {
+            var test = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            if ({|#0:a.Equals(null)|} || a.Length > 3) {
+                return false;
+            }
+            return true;
+        }
+    }
+}";
+
+            var fixtest = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            if (false || a.Length > 3) {
+                return false;
+            }
+            return true;
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
     }
 }

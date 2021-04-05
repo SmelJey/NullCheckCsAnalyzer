@@ -104,7 +104,7 @@ namespace NullCheckCsAnalyzer {
                 CancellationToken cancellationToken) {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
             SyntaxNode newRoot;
-            if (ifStatement.Condition.Kind() == SyntaxKind.EqualsExpression || ifStatement.Condition.Kind() == SyntaxKind.IsExpression) {
+            if (ifStatement.Condition.Kind() == SyntaxKind.EqualsExpression || ifStatement.Condition.Kind() == SyntaxKind.IsPatternExpression || ifStatement.Condition.Kind() == SyntaxKind.InvocationExpression) {
                 newRoot = root.RemoveNode(ifStatement, SyntaxRemoveOptions.KeepNoTrivia);
             } else {
                 newRoot = root.ReplaceNode(ifStatement,
@@ -122,7 +122,7 @@ namespace NullCheckCsAnalyzer {
             //    currentExpression = expression;
             //}
 
-            var evaluatedType = ((nullCheckExpression.Kind() == SyntaxKind.EqualsExpression || nullCheckExpression.Kind() == SyntaxKind.IsPatternExpression)
+            var evaluatedType = (nullCheckExpression.Kind() == SyntaxKind.EqualsExpression || nullCheckExpression.Kind() == SyntaxKind.IsPatternExpression || nullCheckExpression.Kind() == SyntaxKind.InvocationExpression
                 ? SyntaxKind.FalseLiteralExpression
                 : SyntaxKind.TrueLiteralExpression);
 

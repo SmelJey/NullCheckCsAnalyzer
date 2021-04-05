@@ -36,6 +36,7 @@ namespace NullCheckCsAnalyzer {
             context.RegisterSyntaxNodeAction(AnalyzeIsNull, SyntaxKind.IsPatternExpression);
             context.RegisterSyntaxNodeAction(AnalyzeCoalesceOperator, SyntaxKind.CoalesceExpression);
             context.RegisterSyntaxNodeAction(AnalyzeCoalesceAssignment, SyntaxKind.CoalesceAssignmentExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeEqualsInvocation, SyntaxKind.InvocationExpression);
         }
 
         private static void AnalyzeEqualsExpression(SyntaxNodeAnalysisContext context) {
@@ -100,6 +101,22 @@ namespace NullCheckCsAnalyzer {
             }
 
             var diagnostic = Diagnostic.Create(Rule, coalesceAssignment.GetLocation(), coalesceAssignment.Left);
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private static void AnalyzeEqualsInvocation(SyntaxNodeAnalysisContext context) {
+            var equalsInvocation = context.Node as InvocationExpressionSyntax;
+            if (equalsInvocation.ArgumentList.Arguments.Count != 1 ||  equalsInvocation.ArgumentList.Arguments[0].Expression.Kind() != SyntaxKind.NullLiteralExpression
+                    || !(equalsInvocation.Expression is MemberAccessExpressionSyntax memberAccess)) {
+                return;
+            }
+
+            if (memberAccess.Name.Identifier.Text == "Equals" && context.SemanticModel.GetTypeInfo(memberAccess.Expression).Nullability.Annotation !=
+                    NullableAnnotation.NotAnnotated) {
+                return;
+            }
+
+            var diagnostic = Diagnostic.Create(Rule, equalsInvocation.GetLocation(), memberAccess.Expression);
             context.ReportDiagnostic(diagnostic);
         }
     }
