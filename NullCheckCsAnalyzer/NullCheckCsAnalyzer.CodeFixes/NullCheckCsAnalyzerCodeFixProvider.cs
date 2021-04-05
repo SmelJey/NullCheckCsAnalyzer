@@ -33,14 +33,29 @@ namespace NullCheckCsAnalyzer {
 
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var expression = root.FindNode(diagnosticSpan) as BinaryExpressionSyntax;
+            var expression = root.FindNode(diagnosticSpan);
 
-            switch (expression.Parent.Kind()) {
+            if (expression.Kind() == SyntaxKind.ConditionalAccessExpression) {
+                //context.RegisterCodeFix(
+                //    CodeAction.Create(
+                //        title: CodeFixResources.CodeFixTitle,
+                //        createChangedDocument: c => RemoveConditionalMemberAccess(context.Document, expression as ConditionalAccessExpressionSyntax, c),
+                //        equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                //    diagnostic);
+                return;
+            }
+
+            var expressionParent = expression.Parent;
+            while (expressionParent != null &&  expressionParent.Kind() == SyntaxKind.ParenthesizedExpression) {
+                expressionParent = expressionParent.Parent;
+            }
+
+            switch (expressionParent?.Kind()) {
                 case SyntaxKind.IfStatement:
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             title: CodeFixResources.CodeFixTitle,
-                            createChangedDocument: c => RemoveIfNullCheck(context.Document, expression.Parent as IfStatementSyntax, c),
+                            createChangedDocument: c => RemoveIfNullCheck(context.Document, expressionParent as IfStatementSyntax, c),
                             equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                         diagnostic);
                     break;
@@ -48,7 +63,7 @@ namespace NullCheckCsAnalyzer {
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             title: CodeFixResources.CodeFixTitle,
-                            createChangedDocument: c => RemoveConditionalNullCheck(context.Document, expression.Parent as ConditionalExpressionSyntax, c),
+                            createChangedDocument: c => RemoveConditionalNullCheck(context.Document, expressionParent as ConditionalExpressionSyntax, c),
                             equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                         diagnostic);
                     break;
@@ -56,7 +71,7 @@ namespace NullCheckCsAnalyzer {
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             title: CodeFixResources.CodeFixTitle,
-                            createChangedDocument: c => RemoveBoolNullCheck(context.Document, expression, c),
+                            createChangedDocument: c => RemoveBoolNullCheck(context.Document, expression as BinaryExpressionSyntax, c),
                             equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                         diagnostic);
                     break;
@@ -98,8 +113,8 @@ namespace NullCheckCsAnalyzer {
         }
 
         private async Task<Document> RemoveConditionalNullCheck(Document document,
-            ConditionalExpressionSyntax conditionalExpression,
-            CancellationToken cancellationToken) {
+                ConditionalExpressionSyntax conditionalExpression,
+                CancellationToken cancellationToken) {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
 
             SyntaxNode newRoot;
@@ -113,5 +128,12 @@ namespace NullCheckCsAnalyzer {
 
             return document.WithSyntaxRoot(newRoot);
         }
+
+        // TODO: make codefix for this
+        //private async Task<Document> RemoveConditionalMemberAccess(Document document,
+        //        ConditionalAccessExpressionSyntax conditionalAccess, CancellationToken cancellationToken) {
+            
+        //    return document.WithSyntaxRoot(newRoot);
+        //}
     }
 }

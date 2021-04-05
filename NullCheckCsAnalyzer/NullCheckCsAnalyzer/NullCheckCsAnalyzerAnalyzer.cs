@@ -36,10 +36,11 @@ namespace NullCheckCsAnalyzer {
             //context.RegisterOperationAction(AnalyzeEqualsOperation, OperationKind.Binary);
             context.RegisterSyntaxNodeAction(AnalyzeEqualsExpression, SyntaxKind.EqualsExpression);
             context.RegisterSyntaxNodeAction(AnalyzeEqualsExpression, SyntaxKind.NotEqualsExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeConditionalAccessExpression, SyntaxKind.ConditionalAccessExpression);
         }
 
         private static void AnalyzeEqualsExpression(SyntaxNodeAnalysisContext context) {
-            var binaryExpression =  context.Node as BinaryExpressionSyntax;
+            var binaryExpression = context.Node as BinaryExpressionSyntax;
             IdentifierNameSyntax identifierName = null;
 
             if (binaryExpression.Left.Kind() == SyntaxKind.NullLiteralExpression) {
@@ -56,6 +57,17 @@ namespace NullCheckCsAnalyzer {
             }
 
             var diagnostic = Diagnostic.Create(Rule, binaryExpression.GetLocation(), binaryExpression.Left);
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private static void AnalyzeConditionalAccessExpression(SyntaxNodeAnalysisContext context) {
+            var conditionalAccess = context.Node as ConditionalAccessExpressionSyntax;
+            if (context.SemanticModel.GetTypeInfo(conditionalAccess.Expression).Nullability.Annotation !=
+                NullableAnnotation.NotAnnotated) {
+                return;
+            }
+
+            var diagnostic = Diagnostic.Create(Rule, conditionalAccess.GetLocation(), conditionalAccess.Expression);
             context.ReportDiagnostic(diagnostic);
         }
     }
