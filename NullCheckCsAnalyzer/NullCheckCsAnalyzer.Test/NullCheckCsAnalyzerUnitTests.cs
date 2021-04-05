@@ -246,7 +246,7 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
-        public async Task ConditionalOperatorCheck() {
+        public async Task ConditionalOperatorCheck1() {
             var test = @"
 using System;
 #nullable enable
@@ -270,7 +270,79 @@ namespace ConsoleApplication1
     class TypeName
     {   
         bool Test(string a) {
-            return (false ? true : false);
+            return (false);
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task ConditionalOperatorCheck2() {
+            var test = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int c = {|#0:a != null|} ? 4 : 3;
+            return;
+        }
+    }
+}";
+
+            var fixtest = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int c = 4;
+            return;
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task ConditionalOperatorCheck3() {
+            var test = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int c = {|#0:a != null|} && a.Length > 2 ? 4 : 3;
+            return;
+        }
+    }
+}";
+
+            var fixtest = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int c = true && a.Length > 2 ? 4 : 3;
+            return;
         }
     }
 }";
