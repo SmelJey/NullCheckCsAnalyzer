@@ -71,7 +71,7 @@ namespace NullCheckCsAnalyzer {
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             title: CodeFixResources.CodeFixTitle,
-                            createChangedDocument: c => RemoveBoolNullCheck(context.Document, expression as BinaryExpressionSyntax, c),
+                            createChangedDocument: c => RemoveBoolNullCheck(context.Document, expression, c),
                             equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                         diagnostic);
                     break;
@@ -82,7 +82,7 @@ namespace NullCheckCsAnalyzer {
                 CancellationToken cancellationToken) {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
             SyntaxNode newRoot;
-            if (ifStatement.Condition.Kind() == SyntaxKind.EqualsExpression) {
+            if (ifStatement.Condition.Kind() == SyntaxKind.EqualsExpression || ifStatement.Condition.Kind() == SyntaxKind.IsExpression) {
                 newRoot = root.RemoveNode(ifStatement, SyntaxRemoveOptions.KeepNoTrivia);
             } else {
                 newRoot = root.ReplaceNode(ifStatement,
@@ -92,7 +92,7 @@ namespace NullCheckCsAnalyzer {
             return document.WithSyntaxRoot(newRoot);
         }
 
-        private async Task<Document> RemoveBoolNullCheck(Document document, BinaryExpressionSyntax binaryExpression,
+        private async Task<Document> RemoveBoolNullCheck(Document document, SyntaxNode nullCheckExpression,
                 CancellationToken cancellationToken) {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
             //var currentExpression = binaryExpression as ExpressionSyntax;
@@ -100,7 +100,7 @@ namespace NullCheckCsAnalyzer {
             //    currentExpression = expression;
             //}
 
-            var evaluatedType = (binaryExpression.Kind() == SyntaxKind.EqualsExpression
+            var evaluatedType = ((nullCheckExpression.Kind() == SyntaxKind.EqualsExpression || nullCheckExpression.Kind() == SyntaxKind.IsPatternExpression)
                 ? SyntaxKind.FalseLiteralExpression
                 : SyntaxKind.TrueLiteralExpression);
 
@@ -108,7 +108,7 @@ namespace NullCheckCsAnalyzer {
             //    currentExpression.ReplaceNode(binaryExpression, SyntaxFactory.LiteralExpression(evaluatedType));
 
             // TODO: try to simplify boolean expressions of type (true && ...) or (false && ...)
-            var newRoot = root.ReplaceNode(binaryExpression, SyntaxFactory.LiteralExpression(evaluatedType));
+            var newRoot = root.ReplaceNode(nullCheckExpression, SyntaxFactory.LiteralExpression(evaluatedType));
             return document.WithSyntaxRoot(newRoot);
         }
 

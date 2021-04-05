@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -37,6 +33,7 @@ namespace NullCheckCsAnalyzer {
             context.RegisterSyntaxNodeAction(AnalyzeEqualsExpression, SyntaxKind.EqualsExpression);
             context.RegisterSyntaxNodeAction(AnalyzeEqualsExpression, SyntaxKind.NotEqualsExpression);
             context.RegisterSyntaxNodeAction(AnalyzeConditionalAccessExpression, SyntaxKind.ConditionalAccessExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeIsNull, SyntaxKind.IsPatternExpression);
         }
 
         private static void AnalyzeEqualsExpression(SyntaxNodeAnalysisContext context) {
@@ -68,6 +65,17 @@ namespace NullCheckCsAnalyzer {
             }
 
             var diagnostic = Diagnostic.Create(Rule, conditionalAccess.GetLocation(), conditionalAccess.Expression);
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private static void AnalyzeIsNull(SyntaxNodeAnalysisContext context) {
+            var isNullExpression = context.Node as IsPatternExpressionSyntax;
+            if (context.SemanticModel.GetTypeInfo(isNullExpression.Expression as IdentifierNameSyntax).Nullability.Annotation != NullableAnnotation.NotAnnotated
+                || !(isNullExpression.Pattern is ConstantPatternSyntax constantPattern && constantPattern.Expression.Kind() == SyntaxKind.NullLiteralExpression)) {
+                return;
+            }
+
+            var diagnostic = Diagnostic.Create(Rule, isNullExpression.GetLocation(), isNullExpression.Expression);
             context.ReportDiagnostic(diagnostic);
         }
     }
