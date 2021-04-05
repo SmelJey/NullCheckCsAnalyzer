@@ -52,6 +52,14 @@ namespace NullCheckCsAnalyzer {
                             equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                         diagnostic);
                     return;
+                case SyntaxKind.CoalesceAssignmentExpression:
+                    context.RegisterCodeFix(
+                        CodeAction.Create(
+                            title: CodeFixResources.CodeFixTitle,
+                            createChangedDocument: c => RemoveCoalesceAssignment(context.Document, expression as AssignmentExpressionSyntax, c),
+                            equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                        diagnostic);
+                    return;
             }
 
             if (expression.Kind() == SyntaxKind.ConditionalAccessExpression) {
@@ -145,8 +153,14 @@ namespace NullCheckCsAnalyzer {
         private async Task<Document> RemoveCoalesceExpression(Document document,
                 BinaryExpressionSyntax coalesceExpression, CancellationToken cancellationToken) {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
-
             var newRoot = root.ReplaceNode(coalesceExpression, coalesceExpression.Left.WithoutTrivia());
+            return document.WithSyntaxRoot(newRoot);
+        }
+
+        private async Task<Document> RemoveCoalesceAssignment(Document document,
+                AssignmentExpressionSyntax coalesceAssignment, CancellationToken cancellationToken) {
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
+            var newRoot = root.RemoveNode(coalesceAssignment.Parent, SyntaxRemoveOptions.KeepNoTrivia);
             return document.WithSyntaxRoot(newRoot);
         }
 
@@ -154,7 +168,7 @@ namespace NullCheckCsAnalyzer {
         // TODO: make codefix for this
         //private async Task<Document> RemoveConditionalMemberAccess(Document document,
         //        ConditionalAccessExpressionSyntax conditionalAccess, CancellationToken cancellationToken) {
-            
+
         //    return document.WithSyntaxRoot(newRoot);
         //}
     }
