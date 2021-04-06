@@ -101,7 +101,13 @@ namespace NullCheckCsAnalyzer {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
             SyntaxNode newRoot;
             if (FalseNullChecks.Contains(ifStatement.Condition.Kind())) {
-                newRoot = root.RemoveNode(ifStatement, SyntaxRemoveOptions.KeepNoTrivia);
+                if (ifStatement.Else != null) {
+                    newRoot = root.ReplaceNode(ifStatement,
+                        ifStatement.Else.Statement.ChildNodes()
+                            .Select(it => it.WithAdditionalAnnotations(Formatter.Annotation)));
+                } else {
+                    newRoot = root.RemoveNode(ifStatement, SyntaxRemoveOptions.KeepNoTrivia);
+                }
             } else {
                 newRoot = root.ReplaceNode(ifStatement,
                     ifStatement.Statement.ChildNodes().Select(it => it.WithAdditionalAnnotations(Formatter.Annotation)));

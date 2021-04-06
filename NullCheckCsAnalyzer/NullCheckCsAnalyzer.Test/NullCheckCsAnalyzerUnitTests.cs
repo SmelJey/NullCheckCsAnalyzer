@@ -50,7 +50,7 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
-        public async Task IfNullTest() {
+        public async Task IfNullTest1() {
             var test = @"
 #nullable enable
 
@@ -75,6 +75,44 @@ namespace ConsoleApplication1
     class TypeName
     {   
         bool Test(string a) {
+            return true;
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task IfNullTest2() {
+            var test = @"
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            if ({|#0:a == null|}) {
+                return false;
+            } else {
+                 a.Substring(0);
+                 return true;
+            }
+        }
+    }
+}";
+
+            var fixtest = @"
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            a.Substring(0);
             return true;
         }
     }
@@ -156,6 +194,50 @@ namespace ConsoleApplication1
 
             return false;
             return true;
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task IfNotNullTest3() {
+            var test = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            if ({|#0:a != null|}) {
+                Console.WriteLine(1);
+                Console.WriteLine(2);
+
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+}";
+
+            var fixtest = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        bool Test(string a) {
+            Console.WriteLine(1);
+            Console.WriteLine(2);
+
+            return false;
         }
     }
 }";
