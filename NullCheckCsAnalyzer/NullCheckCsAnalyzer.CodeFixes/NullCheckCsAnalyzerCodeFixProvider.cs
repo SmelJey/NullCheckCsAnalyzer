@@ -20,9 +20,7 @@ namespace NullCheckCsAnalyzer {
             SyntaxKind.EqualsExpression, SyntaxKind.IsPatternExpression, SyntaxKind.InvocationExpression
         };
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds {
-            get { return ImmutableArray.Create(NullCheckCsAnalyzerAnalyzer.DiagnosticId); }
-        }
+        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(NullCheckCsAnalyzerAnalyzer.DiagnosticId);
 
         public sealed override FixAllProvider GetFixAllProvider() {
             return WellKnownFixAllProviders.BatchFixer;
@@ -113,7 +111,6 @@ namespace NullCheckCsAnalyzer {
         }
 
         private async Task<Document> RemoveBoolNullCheck(Document document, SyntaxNode nullCheckExpression, CancellationToken cancellationToken) {
-
             // TODO: try to simplify boolean expressions of type (true && ...) or (false && ...)
             var root = await document.GetSyntaxRootAsync(cancellationToken);
 

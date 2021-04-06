@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace NullCheckCsAnalyzer {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class NullCheckCsAnalyzerAnalyzer : DiagnosticAnalyzer {
-        public const string DiagnosticId = "NullCheckCsAnalyzer";
+        public const string DiagnosticId = "NullAnalyzer";
 
         private static readonly LocalizableString NullCheckTitle = new LocalizableResourceString(nameof(Resources.NullCheckTitle), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString NullCheckMessageFormat = new LocalizableResourceString(nameof(Resources.NullCheckMessageFormat), Resources.ResourceManager, typeof(Resources));
@@ -44,21 +44,21 @@ namespace NullCheckCsAnalyzer {
 
         private static void AnalyzeEqualsExpression(SyntaxNodeAnalysisContext context) {
             var binaryExpression = context.Node as BinaryExpressionSyntax;
-            IdentifierNameSyntax identifierName = null;
+            SyntaxNode argument = null;
 
             if (binaryExpression.Left.Kind() == SyntaxKind.NullLiteralExpression) {
-                identifierName = binaryExpression.Right as IdentifierNameSyntax;
+                argument = binaryExpression.Right;
             }
 
             if (binaryExpression.Right.Kind() == SyntaxKind.NullLiteralExpression) {
-                identifierName = binaryExpression.Left as IdentifierNameSyntax;
+                argument = binaryExpression.Left;
             }
 
-            if (identifierName == null || context.SemanticModel.GetTypeInfo(identifierName).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
+            if (argument == null || context.SemanticModel.GetTypeInfo(argument).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
                 return;
             }
 
-            var diagnostic = Diagnostic.Create(NullCheckRule, binaryExpression.GetLocation(), binaryExpression.Left);
+            var diagnostic = Diagnostic.Create(NullCheckRule, binaryExpression.GetLocation(), argument);
             context.ReportDiagnostic(diagnostic);
         }
 
@@ -105,19 +105,21 @@ namespace NullCheckCsAnalyzer {
 
         private static void AnalyzeEqualsInvocation(SyntaxNodeAnalysisContext context) {
             var equalsInvocation = context.Node as InvocationExpressionSyntax;
-            SyntaxNode arg = null;
+            SyntaxNode argument = null;
 
             switch (equalsInvocation.Expression) {
                 case MemberAccessExpressionSyntax memberAccess: {
                     if (equalsInvocation.ArgumentList.Arguments.Count == 1 && memberAccess.Name.Identifier.Text == "Equals"
-                            && equalsInvocation.ArgumentList.Arguments[0].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                        arg = memberAccess.Expression;
-                    } else if (equalsInvocation.ArgumentList.Arguments.Count == 2 && memberAccess.Name.Identifier.Text == "ReferenceEquals") {
+                        && equalsInvocation.ArgumentList.Arguments[0].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
+                        argument = memberAccess.Expression;
 
+                    } else if (equalsInvocation.ArgumentList.Arguments.Count == 2 && memberAccess.Name.Identifier.Text == "ReferenceEquals") {
                         if (equalsInvocation.ArgumentList.Arguments[0].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                            arg = equalsInvocation.ArgumentList.Arguments[1].Expression;
-                        } else if (equalsInvocation.ArgumentList.Arguments[1].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                            arg = equalsInvocation.ArgumentList.Arguments[0].Expression;
+                            argument = equalsInvocation.ArgumentList.Arguments[1].Expression;
+                        } 
+                        
+                        if (equalsInvocation.ArgumentList.Arguments[1].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
+                            argument = equalsInvocation.ArgumentList.Arguments[0].Expression;
                         }
                     }
                     break;
@@ -126,20 +128,24 @@ namespace NullCheckCsAnalyzer {
                     if (equalsInvocation.ArgumentList.Arguments.Count != 2 || methodName.Identifier.Text != "ReferenceEquals") {
                         return;
                     }
+
                     if (equalsInvocation.ArgumentList.Arguments[0].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                        arg = equalsInvocation.ArgumentList.Arguments[1].Expression;
-                    } else if (equalsInvocation.ArgumentList.Arguments[1].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                        arg = equalsInvocation.ArgumentList.Arguments[0].Expression;
+                        argument = equalsInvocation.ArgumentList.Arguments[1].Expression;
                     }
+
+                    if (equalsInvocation.ArgumentList.Arguments[1].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
+                        argument = equalsInvocation.ArgumentList.Arguments[0].Expression;
+                    }
+
                     break;
                 }
             }
 
-            if (arg == null || context.SemanticModel.GetTypeInfo(arg).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
+            if (argument == null || context.SemanticModel.GetTypeInfo(argument).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
                 return;
             }
 
-            var diagnostic = Diagnostic.Create(NullCheckRule, equalsInvocation.GetLocation(), arg);
+            var diagnostic = Diagnostic.Create(NullCheckRule, equalsInvocation.GetLocation(), argument);
             context.ReportDiagnostic(diagnostic);
         }
     }
