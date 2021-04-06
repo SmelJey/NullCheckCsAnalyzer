@@ -265,25 +265,8 @@ namespace ConsoleApplication1
     }
 }";
 
-            var fixtest = @"
-using System;
-#nullable enable
-
-namespace ConsoleApplication1
-{
-    class TypeName
-    {   
-        bool Test(string a) {
-            if (5 > 3 && true) {
-                return false;
-            }
-            return true;
-        }
-    }
-}";
-
             var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -305,25 +288,8 @@ namespace ConsoleApplication1
     }
 }";
 
-            var fixtest = @"
-using System;
-#nullable enable
-
-namespace ConsoleApplication1
-{
-    class TypeName
-    {   
-        bool Test(string a) {
-            if (false && 5 > 3) {
-                return false;
-            }
-            return true;
-        }
-    }
-}";
-
             var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -413,23 +379,8 @@ namespace ConsoleApplication1
     }
 }";
 
-            var fixtest = @"
-using System;
-#nullable enable
-
-namespace ConsoleApplication1
-{
-    class TypeName
-    {   
-        void Test(string a) {
-            int c = true && a.Length > 2 ? 4 : 3;
-            return;
-        }
-    }
-}";
-
             var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -630,25 +581,8 @@ namespace ConsoleApplication1
     }
 }";
 
-            var fixtest = @"
-using System;
-#nullable enable
-
-namespace ConsoleApplication1
-{
-    class TypeName
-    {   
-        bool Test(string a) {
-            if (false || a.Length > 3) {
-                return false;
-            }
-            return true;
-        }
-    }
-}";
-
             var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -707,25 +641,8 @@ namespace ConsoleApplication1
     }
 }";
 
-            var fixtest = @"
-using System;
-#nullable enable
-
-namespace ConsoleApplication1
-{
-    class TypeName
-    {   
-        bool Test(string a) {
-            if (false || a.Length > 3) {
-                return false;
-            }
-            return true;
-        }
-    }
-}";
-
             var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]

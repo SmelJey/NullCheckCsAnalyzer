@@ -85,15 +85,15 @@ namespace NullCheckCsAnalyzer {
                             equivalenceKey: nameof(CodeFixResources.NullCheckCodeFixTitle)),
                         diagnostic);
                     break;
-
-                default:
-                    context.RegisterCodeFix(
-                        CodeAction.Create(
-                            title: CodeFixResources.NullCheckCodeFixTitle,
-                            createChangedDocument: c => RemoveBoolNullCheck(context.Document, expression, c),
-                            equivalenceKey: nameof(CodeFixResources.NullCheckCodeFixTitle)),
-                        diagnostic);
-                    break;
+                // Useless codefix
+                //default:
+                //    context.RegisterCodeFix(
+                //        CodeAction.Create(
+                //            title: CodeFixResources.NullCheckCodeFixTitle,
+                //            createChangedDocument: c => RemoveBoolNullCheck(context.Document, expression, c),
+                //            equivalenceKey: nameof(CodeFixResources.NullCheckCodeFixTitle)),
+                //        diagnostic);
+                //    break;
             }
         }
 
@@ -116,17 +116,17 @@ namespace NullCheckCsAnalyzer {
             return document.WithSyntaxRoot(newRoot);
         }
 
-        private async Task<Document> RemoveBoolNullCheck(Document document, SyntaxNode nullCheckExpression, CancellationToken cancellationToken) {
-            // TODO: try to simplify boolean expressions of type (true && ...) or (false && ...)
-            var root = await document.GetSyntaxRootAsync(cancellationToken);
+        //private async Task<Document> RemoveBoolNullCheck(Document document, SyntaxNode nullCheckExpression, CancellationToken cancellationToken) {
+        //    // TODO: try to simplify boolean expressions of type (true && ...) or (false && ...)
+        //    var root = await document.GetSyntaxRootAsync(cancellationToken);
 
-            var evaluatedType = (FalseNullChecks.Contains(nullCheckExpression.Kind())
-                ? SyntaxKind.FalseLiteralExpression
-                : SyntaxKind.TrueLiteralExpression);
+        //    var evaluatedType = (FalseNullChecks.Contains(nullCheckExpression.Kind())
+        //        ? SyntaxKind.FalseLiteralExpression
+        //        : SyntaxKind.TrueLiteralExpression);
 
-            var newRoot = root.ReplaceNode(nullCheckExpression, SyntaxFactory.LiteralExpression(evaluatedType));
-            return document.WithSyntaxRoot(newRoot);
-        }
+        //    var newRoot = root.ReplaceNode(nullCheckExpression, SyntaxFactory.LiteralExpression(evaluatedType));
+        //    return document.WithSyntaxRoot(newRoot);
+        //}
 
         private async Task<Document> RemoveConditionalNullCheck(Document document, ConditionalExpressionSyntax conditionalExpression, CancellationToken cancellationToken) {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
