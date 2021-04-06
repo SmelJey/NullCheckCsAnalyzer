@@ -63,9 +63,27 @@ namespace NullCheckCsAnalyzer {
         /// <summary>
         ///   Looks up a localized string similar to Remove unnecessary null-check.
         /// </summary>
-        internal static string CodeFixTitle {
+        internal static string NullCheckCodeFixTitle {
             get {
-                return ResourceManager.GetString("CodeFixTitle", resourceCulture);
+                return ResourceManager.GetString("NullCheckCodeFixTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove unnecessary null coalescing.
+        /// </summary>
+        internal static string NullCoalesceCodeFixTitle {
+            get {
+                return ResourceManager.GetString("NullCoalesceCodeFixTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove unnecessary null propagation.
+        /// </summary>
+        internal static string NullPropagationCodeFixTitle {
+            get {
+                return ResourceManager.GetString("NullPropagationCodeFixTitle", resourceCulture);
             }
         }
     }

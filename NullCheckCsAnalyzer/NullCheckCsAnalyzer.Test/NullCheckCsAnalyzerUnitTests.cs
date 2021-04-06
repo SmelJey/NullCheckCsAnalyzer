@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -81,7 +80,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -117,7 +116,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -161,7 +160,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -201,7 +200,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -241,7 +240,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -275,7 +274,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -311,7 +310,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -347,7 +346,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -383,7 +382,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -417,7 +416,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -453,7 +452,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCoalesceRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -488,7 +487,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCoalesceRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -525,7 +524,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -566,7 +565,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -603,7 +602,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -643,7 +642,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var expected = VerifyCS.Diagnostic("NullCheckCsAnalyzer").WithLocation(0).WithArguments("a");
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
     }

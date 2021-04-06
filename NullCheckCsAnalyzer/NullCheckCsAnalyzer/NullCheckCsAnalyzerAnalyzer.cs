@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,14 +9,25 @@ namespace NullCheckCsAnalyzer {
     public class NullCheckCsAnalyzerAnalyzer : DiagnosticAnalyzer {
         public const string DiagnosticId = "NullCheckCsAnalyzer";
 
-        private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableString MessageFormat = new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager, typeof(Resources));
-        private const string Category = "Naming";
+        private static readonly LocalizableString NullCheckTitle = new LocalizableResourceString(nameof(Resources.NullCheckTitle), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString NullCheckMessageFormat = new LocalizableResourceString(nameof(Resources.NullCheckMessageFormat), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString NullCheckDescription = new LocalizableResourceString(nameof(Resources.NullCheckDescription), Resources.ResourceManager, typeof(Resources));
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
+        private static readonly LocalizableString NullCoalesceTitle = new LocalizableResourceString(nameof(Resources.NullCoalesceTitle), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString NullCoalesceMessageFormat = new LocalizableResourceString(nameof(Resources.NullCoalesceMessageFormat), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString NullCoalesceDescription = new LocalizableResourceString(nameof(Resources.NullCoalesceDescription), Resources.ResourceManager, typeof(Resources));
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
+        private static readonly LocalizableString NullPropagationTitle = new LocalizableResourceString(nameof(Resources.NullPropagationTitle), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString NullPropagationMessageFormat = new LocalizableResourceString(nameof(Resources.NullPropagationMessageFormat), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString NullPropagationDescription = new LocalizableResourceString(nameof(Resources.NullPropagationDescription), Resources.ResourceManager, typeof(Resources));
+
+        private const string Category = "Usage";
+
+        public static readonly DiagnosticDescriptor NullCheckRule = new DiagnosticDescriptor(DiagnosticId, NullCheckTitle, NullCheckMessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: NullCheckDescription);
+        public static readonly DiagnosticDescriptor NullCoalesceRule = new DiagnosticDescriptor(DiagnosticId, NullCoalesceTitle, NullCoalesceMessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: NullCoalesceDescription);
+        public static readonly DiagnosticDescriptor NullPropagationRule = new DiagnosticDescriptor(DiagnosticId, NullPropagationTitle, NullPropagationMessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: NullPropagationDescription);
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(NullCheckRule, NullCoalesceRule, NullPropagationRule); } }
 
         public override void Initialize(AnalysisContext context) {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -49,7 +58,7 @@ namespace NullCheckCsAnalyzer {
                 return;
             }
 
-            var diagnostic = Diagnostic.Create(Rule, binaryExpression.GetLocation(), binaryExpression.Left);
+            var diagnostic = Diagnostic.Create(NullCheckRule, binaryExpression.GetLocation(), binaryExpression.Left);
             context.ReportDiagnostic(diagnostic);
         }
 
@@ -59,7 +68,7 @@ namespace NullCheckCsAnalyzer {
                 return;
             }
 
-            var diagnostic = Diagnostic.Create(Rule, conditionalAccess.GetLocation(), conditionalAccess.Expression);
+            var diagnostic = Diagnostic.Create(NullPropagationRule, conditionalAccess.GetLocation(), conditionalAccess.Expression);
             context.ReportDiagnostic(diagnostic);
         }
 
@@ -70,7 +79,7 @@ namespace NullCheckCsAnalyzer {
                 return;
             }
 
-            var diagnostic = Diagnostic.Create(Rule, isNullExpression.GetLocation(), isNullExpression.Expression);
+            var diagnostic = Diagnostic.Create(NullCheckRule, isNullExpression.GetLocation(), isNullExpression.Expression);
             context.ReportDiagnostic(diagnostic);
         }
 
@@ -80,7 +89,7 @@ namespace NullCheckCsAnalyzer {
                 return;
             }
 
-            var diagnostic = Diagnostic.Create(Rule, coalesceOperator.GetLocation(), coalesceOperator.Left);
+            var diagnostic = Diagnostic.Create(NullCoalesceRule, coalesceOperator.GetLocation(), coalesceOperator.Left);
             context.ReportDiagnostic(diagnostic);
         }
 
@@ -90,7 +99,7 @@ namespace NullCheckCsAnalyzer {
                 return;
             }
 
-            var diagnostic = Diagnostic.Create(Rule, coalesceAssignment.GetLocation(), coalesceAssignment.Left);
+            var diagnostic = Diagnostic.Create(NullCoalesceRule, coalesceAssignment.GetLocation(), coalesceAssignment.Left);
             context.ReportDiagnostic(diagnostic);
         }
 
@@ -130,7 +139,7 @@ namespace NullCheckCsAnalyzer {
                 return;
             }
 
-            var diagnostic = Diagnostic.Create(Rule, equalsInvocation.GetLocation(), arg);
+            var diagnostic = Diagnostic.Create(NullCheckRule, equalsInvocation.GetLocation(), arg);
             context.ReportDiagnostic(diagnostic);
         }
     }

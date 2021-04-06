@@ -117,8 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CodeFixTitle" xml:space="preserve">
+  <data name="NullCheckCodeFixTitle" xml:space="preserve">
     <value>Remove unnecessary null-check</value>
     <comment>The title of the code fix.</comment>
+  </data>
+  <data name="NullCoalesceCodeFixTitle" xml:space="preserve">
+    <value>Remove unnecessary null coalescing</value>
+  </data>
+  <data name="NullPropagationCodeFixTitle" xml:space="preserve">
+    <value>Remove unnecessary null propagation</value>
   </data>
 </root>

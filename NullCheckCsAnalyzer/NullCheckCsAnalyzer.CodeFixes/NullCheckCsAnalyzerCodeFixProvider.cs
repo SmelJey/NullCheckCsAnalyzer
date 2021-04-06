@@ -43,23 +43,23 @@ namespace NullCheckCsAnalyzer {
                     //    CodeAction.Create(
                     //        title: CodeFixResources.CodeFixTitle,
                     //        createChangedDocument: c => RemoveConditionalMemberAccess(context.Document, expression as ConditionalAccessExpressionSyntax, c),
-                    //        equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                    //        equivalenceKey: nameof(CodeFixResources.NullPropagationCodeFixTitle)),
                     //    diagnostic);
                     return;
                 case SyntaxKind.CoalesceExpression:
                     context.RegisterCodeFix(
                         CodeAction.Create(
-                            title: CodeFixResources.CodeFixTitle,
+                            title: CodeFixResources.NullCheckCodeFixTitle,
                             createChangedDocument: c => RemoveCoalesceExpression(context.Document, expression as BinaryExpressionSyntax, c),
-                            equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                            equivalenceKey: nameof(CodeFixResources.NullCoalesceCodeFixTitle)),
                         diagnostic);
                     return;
                 case SyntaxKind.CoalesceAssignmentExpression:
                     context.RegisterCodeFix(
                         CodeAction.Create(
-                            title: CodeFixResources.CodeFixTitle,
+                            title: CodeFixResources.NullCheckCodeFixTitle,
                             createChangedDocument: c => RemoveCoalesceAssignment(context.Document, expression as AssignmentExpressionSyntax, c),
-                            equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                            equivalenceKey: nameof(CodeFixResources.NullCoalesceCodeFixTitle)),
                         diagnostic);
                     return;
             }
@@ -73,25 +73,25 @@ namespace NullCheckCsAnalyzer {
                 case SyntaxKind.IfStatement:
                     context.RegisterCodeFix(
                         CodeAction.Create(
-                            title: CodeFixResources.CodeFixTitle,
+                            title: CodeFixResources.NullCheckCodeFixTitle,
                             createChangedDocument: c => RemoveIfNullCheck(context.Document, expressionParent as IfStatementSyntax, c),
-                            equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                            equivalenceKey: nameof(CodeFixResources.NullCheckCodeFixTitle)),
                         diagnostic);
                     break;
                 case SyntaxKind.ConditionalExpression:
                     context.RegisterCodeFix(
                         CodeAction.Create(
-                            title: CodeFixResources.CodeFixTitle,
+                            title: CodeFixResources.NullCheckCodeFixTitle,
                             createChangedDocument: c => RemoveConditionalNullCheck(context.Document, expressionParent as ConditionalExpressionSyntax, c),
-                            equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                            equivalenceKey: nameof(CodeFixResources.NullCheckCodeFixTitle)),
                         diagnostic);
                     break;
                 default:
                     context.RegisterCodeFix(
                         CodeAction.Create(
-                            title: CodeFixResources.CodeFixTitle,
+                            title: CodeFixResources.NullCheckCodeFixTitle,
                             createChangedDocument: c => RemoveBoolNullCheck(context.Document, expression, c),
-                            equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                            equivalenceKey: nameof(CodeFixResources.NullCheckCodeFixTitle)),
                         diagnostic);
                     break;
             }

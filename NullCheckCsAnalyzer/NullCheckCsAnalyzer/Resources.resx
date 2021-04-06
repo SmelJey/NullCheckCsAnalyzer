@@ -117,16 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AnalyzerDescription" xml:space="preserve">
+  <data name="NullCheckDescription" xml:space="preserve">
     <value>Non-nullable types does not require null-checks</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
-  <data name="AnalyzerMessageFormat" xml:space="preserve">
-    <value>Variable '{0}' has non-nullable type and doesn't require a null-check</value>
+  <data name="NullCheckMessageFormat" xml:space="preserve">
+    <value>'{0}' has non-nullable type and doesn't require a null-check</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
-  <data name="AnalyzerTitle" xml:space="preserve">
+  <data name="NullCheckTitle" xml:space="preserve">
     <value>Variable of non-nullable type has null-check</value>
     <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="NullCoalesceDescription" xml:space="preserve">
+    <value>Null coalescing on non-nullable type is meaningless</value>
+  </data>
+  <data name="NullCoalesceMessageFormat" xml:space="preserve">
+    <value>Null coalescing will always evaluate to '{0}'</value>
+  </data>
+  <data name="NullCoalesceTitle" xml:space="preserve">
+    <value>Null coalescing on non-nullable type</value>
+  </data>
+  <data name="NullPropagationDescription" xml:space="preserve">
+    <value>Null propagation on non-nullable type is meaningless</value>
+  </data>
+  <data name="NullPropagationMessageFormat" xml:space="preserve">
+    <value>'{0}' is always not null and does not require null propagation</value>
+  </data>
+  <data name="NullPropagationTitle" xml:space="preserve">
+    <value>Null propagation on non-nullable type</value>
   </data>
 </root>

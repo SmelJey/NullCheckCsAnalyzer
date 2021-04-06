@@ -63,27 +63,81 @@ namespace NullCheckCsAnalyzer {
         /// <summary>
         ///   Looks up a localized string similar to Non-nullable types does not require null-checks.
         /// </summary>
-        internal static string AnalyzerDescription {
+        internal static string NullCheckDescription {
             get {
-                return ResourceManager.GetString("AnalyzerDescription", resourceCulture);
+                return ResourceManager.GetString("NullCheckDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Variable &apos;{0}&apos; has non-nullable type and doesn&apos;t require a null-check.
+        ///   Looks up a localized string similar to &apos;{0}&apos; has non-nullable type and doesn&apos;t require a null-check.
         /// </summary>
-        internal static string AnalyzerMessageFormat {
+        internal static string NullCheckMessageFormat {
             get {
-                return ResourceManager.GetString("AnalyzerMessageFormat", resourceCulture);
+                return ResourceManager.GetString("NullCheckMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Variable of non-nullable type has null-check.
         /// </summary>
-        internal static string AnalyzerTitle {
+        internal static string NullCheckTitle {
             get {
-                return ResourceManager.GetString("AnalyzerTitle", resourceCulture);
+                return ResourceManager.GetString("NullCheckTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Null coalescing on non-nullable type is meaningless.
+        /// </summary>
+        internal static string NullCoalesceDescription {
+            get {
+                return ResourceManager.GetString("NullCoalesceDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Null coalescing will always evaluate to &apos;{0}&apos;.
+        /// </summary>
+        internal static string NullCoalesceMessageFormat {
+            get {
+                return ResourceManager.GetString("NullCoalesceMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Null coalescing on non-nullable type.
+        /// </summary>
+        internal static string NullCoalesceTitle {
+            get {
+                return ResourceManager.GetString("NullCoalesceTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Null propagation on non-nullable type is meaningless.
+        /// </summary>
+        internal static string NullPropagationDescription {
+            get {
+                return ResourceManager.GetString("NullPropagationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is always not null and does not require null propagation.
+        /// </summary>
+        internal static string NullPropagationMessageFormat {
+            get {
+                return ResourceManager.GetString("NullPropagationMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Null propagation on non-nullable type.
+        /// </summary>
+        internal static string NullPropagationTitle {
+            get {
+                return ResourceManager.GetString("NullPropagationTitle", resourceCulture);
             }
         }
     }
