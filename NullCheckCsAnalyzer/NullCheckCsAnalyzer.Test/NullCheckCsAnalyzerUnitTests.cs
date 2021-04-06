@@ -645,5 +645,141 @@ namespace ConsoleApplication1
             var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullCheckRule).WithLocation(0).WithArguments("a");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
+
+        [TestMethod]
+        public async Task NullPropagation1() {
+            var test = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int? al = {|#0:a?.Length|};
+        }
+    }
+}";
+
+            var fixtest = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int? al = a.Length;
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullPropagationRule).WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task NullPropagation2() {
+            var test = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            string? al = {|#0:a?.Substring(0)|};
+        }
+    }
+}";
+
+            var fixtest = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            string? al = a.Substring(0);
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullPropagationRule).WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task NullPropagation3() {
+            var test = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int? al = {|#0:a.Substring(0)?.Length|};
+        }
+    }
+}";
+
+            var fixtest = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int? al = a.Substring(0).Length;
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullPropagationRule).WithLocation(0).WithArguments("a.Substring(0)");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task NullPropagation4() {
+            var test = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int? al = {|#0:a?.Substring(0).Length|};
+        }
+    }
+}";
+
+            var fixtest = @"
+using System;
+#nullable enable
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {   
+        void Test(string a) {
+            int? al = a.Substring(0).Length;
+        }
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullPropagationRule).WithLocation(0).WithArguments("a");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
     }
 }
