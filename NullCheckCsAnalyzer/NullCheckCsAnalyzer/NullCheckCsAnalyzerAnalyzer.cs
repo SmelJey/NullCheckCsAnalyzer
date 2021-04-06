@@ -44,14 +44,14 @@ namespace NullCheckCsAnalyzer {
 
         private static void AnalyzeEqualsExpression(SyntaxNodeAnalysisContext context) {
             var binaryExpression = context.Node as BinaryExpressionSyntax;
-            SyntaxNode argument = null;
+            IdentifierNameSyntax argument = null;
 
             if (binaryExpression.Left.Kind() == SyntaxKind.NullLiteralExpression) {
-                argument = binaryExpression.Right;
+                argument = binaryExpression.Right as IdentifierNameSyntax;
             }
 
             if (binaryExpression.Right.Kind() == SyntaxKind.NullLiteralExpression) {
-                argument = binaryExpression.Left;
+                argument = binaryExpression.Left as IdentifierNameSyntax;
             }
 
             if (argument == null || context.SemanticModel.GetTypeInfo(argument).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
@@ -64,7 +64,8 @@ namespace NullCheckCsAnalyzer {
 
         private static void AnalyzeConditionalAccessExpression(SyntaxNodeAnalysisContext context) {
             var conditionalAccess = context.Node as ConditionalAccessExpressionSyntax;
-            if (context.SemanticModel.GetTypeInfo(conditionalAccess.Expression).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
+            if (context.SemanticModel.GetTypeInfo(conditionalAccess.Expression).Nullability.Annotation != NullableAnnotation.NotAnnotated
+                || !(conditionalAccess.Expression is IdentifierNameSyntax)) {
                 return;
             }
 
@@ -74,7 +75,8 @@ namespace NullCheckCsAnalyzer {
 
         private static void AnalyzeIsNull(SyntaxNodeAnalysisContext context) {
             var isNullExpression = context.Node as IsPatternExpressionSyntax;
-            if (context.SemanticModel.GetTypeInfo(isNullExpression.Expression as IdentifierNameSyntax).Nullability.Annotation != NullableAnnotation.NotAnnotated
+            if (context.SemanticModel.GetTypeInfo(isNullExpression.Expression).Nullability.Annotation != NullableAnnotation.NotAnnotated
+                || !(isNullExpression.Expression is IdentifierNameSyntax)
                 || !(isNullExpression.Pattern is ConstantPatternSyntax constantPattern && constantPattern.Expression.Kind() == SyntaxKind.NullLiteralExpression)) {
                 return;
             }
@@ -85,7 +87,8 @@ namespace NullCheckCsAnalyzer {
 
         private static void AnalyzeCoalesceOperator(SyntaxNodeAnalysisContext context) {
             var coalesceOperator = context.Node as BinaryExpressionSyntax;
-            if (context.SemanticModel.GetTypeInfo(coalesceOperator.Left).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
+            if (context.SemanticModel.GetTypeInfo(coalesceOperator.Left).Nullability.Annotation != NullableAnnotation.NotAnnotated
+                || !(coalesceOperator.Left is IdentifierNameSyntax)) {
                 return;
             }
 
@@ -95,7 +98,8 @@ namespace NullCheckCsAnalyzer {
 
         private static void AnalyzeCoalesceAssignment(SyntaxNodeAnalysisContext context) {
             var coalesceAssignment = context.Node as AssignmentExpressionSyntax;
-            if (context.SemanticModel.GetTypeInfo(coalesceAssignment.Left).Nullability.Annotation != NullableAnnotation.NotAnnotated) {
+            if (context.SemanticModel.GetTypeInfo(coalesceAssignment.Left).Nullability.Annotation != NullableAnnotation.NotAnnotated
+                || !(coalesceAssignment.Left is IdentifierNameSyntax)) {
                 return;
             }
 
@@ -105,21 +109,21 @@ namespace NullCheckCsAnalyzer {
 
         private static void AnalyzeEqualsInvocation(SyntaxNodeAnalysisContext context) {
             var equalsInvocation = context.Node as InvocationExpressionSyntax;
-            SyntaxNode argument = null;
+            IdentifierNameSyntax argument = null;
 
             switch (equalsInvocation.Expression) {
                 case MemberAccessExpressionSyntax memberAccess: {
                     if (equalsInvocation.ArgumentList.Arguments.Count == 1 && memberAccess.Name.Identifier.Text == "Equals"
                         && equalsInvocation.ArgumentList.Arguments[0].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                        argument = memberAccess.Expression;
+                        argument = memberAccess.Expression as IdentifierNameSyntax;
 
                     } else if (equalsInvocation.ArgumentList.Arguments.Count == 2 && memberAccess.Name.Identifier.Text == "ReferenceEquals") {
                         if (equalsInvocation.ArgumentList.Arguments[0].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                            argument = equalsInvocation.ArgumentList.Arguments[1].Expression;
+                            argument = equalsInvocation.ArgumentList.Arguments[1].Expression as IdentifierNameSyntax;
                         } 
                         
                         if (equalsInvocation.ArgumentList.Arguments[1].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                            argument = equalsInvocation.ArgumentList.Arguments[0].Expression;
+                            argument = equalsInvocation.ArgumentList.Arguments[0].Expression as IdentifierNameSyntax;
                         }
                     }
                     break;
@@ -130,11 +134,11 @@ namespace NullCheckCsAnalyzer {
                     }
 
                     if (equalsInvocation.ArgumentList.Arguments[0].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                        argument = equalsInvocation.ArgumentList.Arguments[1].Expression;
+                        argument = equalsInvocation.ArgumentList.Arguments[1].Expression as IdentifierNameSyntax;
                     }
 
                     if (equalsInvocation.ArgumentList.Arguments[1].Expression.Kind() == SyntaxKind.NullLiteralExpression) {
-                        argument = equalsInvocation.ArgumentList.Arguments[0].Expression;
+                        argument = equalsInvocation.ArgumentList.Arguments[0].Expression as IdentifierNameSyntax;
                     }
 
                     break;

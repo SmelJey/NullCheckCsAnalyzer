@@ -725,40 +725,6 @@ namespace ConsoleApplication1
     class TypeName
     {   
         void Test(string a) {
-            int? al = {|#0:a.Substring(0)?.Length|};
-        }
-    }
-}";
-
-            var fixtest = @"
-using System;
-#nullable enable
-
-namespace ConsoleApplication1
-{
-    class TypeName
-    {   
-        void Test(string a) {
-            int? al = a.Substring(0).Length;
-        }
-    }
-}";
-
-            var expected = VerifyCS.Diagnostic(NullCheckCsAnalyzerAnalyzer.NullPropagationRule).WithLocation(0).WithArguments("a.Substring(0)");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
-        }
-
-        [TestMethod]
-        public async Task NullPropagation4() {
-            var test = @"
-using System;
-#nullable enable
-
-namespace ConsoleApplication1
-{
-    class TypeName
-    {   
-        void Test(string a) {
             int? al = {|#0:a?.Substring(0).Length|};
         }
     }
